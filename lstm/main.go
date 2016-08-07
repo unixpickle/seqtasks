@@ -25,7 +25,7 @@ func main() {
 			Name: "XOR last",
 			Task: &seqtasks.XORLastTask{SeqLen: 50},
 			Model: &BlockModel{
-				Block:         NewBlock(1, 40, 40),
+				Block:         NewBlock(1, 40, 40, 1),
 				Cost:          &neuralnet.SigmoidCECost{},
 				OutActivation: &neuralnet.Sigmoid{},
 			},
@@ -35,8 +35,27 @@ func main() {
 			TestingBatch: 10,
 			TestingCount: 10,
 		},
+		{
+			Name: "Repeat",
+			Task: &seqtasks.RepeatTask{
+				MinString: 2,
+				MaxString: 5,
+				MinGap: 0,
+				MaxGap: 6,
+			},
+			Model: &BlockModel{
+				Block:         NewBlock(3, 100, 100, 1),
+				Cost:          &neuralnet.SigmoidCECost{},
+				OutActivation: &neuralnet.Sigmoid{},
+			},
+			MaxEpochs:    100,
+			MaxScore:     1,
+			TrainingSize: 300,
+			TestingBatch: 10,
+			TestingCount: 30,
+		},
 	}
-	for _, task := range tasks {
+	for _, task := range tasks[1:] {
 		log.Println("Running task", task.Name, "...")
 		samples := task.Task.NewSamples(task.TrainingSize)
 		for i := 0; i < task.MaxEpochs; i++ {

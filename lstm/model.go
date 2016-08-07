@@ -18,7 +18,7 @@ const (
 // produce outputs given the inputs.
 // The resulting network will output a scaler, so adding
 // an activation function may be required.
-func NewBlock(inSize, hiddenSize, outHiddenSize int) rnn.StackedBlock {
+func NewBlock(inSize, hiddenSize, outHiddenSize, outCount int) rnn.StackedBlock {
 	outNet := neuralnet.Network{
 		&neuralnet.DenseLayer{
 			InputCount:  hiddenSize,
@@ -27,7 +27,7 @@ func NewBlock(inSize, hiddenSize, outHiddenSize int) rnn.StackedBlock {
 		&neuralnet.Sigmoid{},
 		&neuralnet.DenseLayer{
 			InputCount:  outHiddenSize,
-			OutputCount: 1,
+			OutputCount: outCount,
 		},
 	}
 	outNet.Randomize()
