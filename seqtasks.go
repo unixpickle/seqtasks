@@ -32,5 +32,5 @@ type Model interface {
 
 	// Run runs a slice of sequences on the model and returns
 	// the output vectors.
-	Run(inputs [][]linalg.Vector)
+	Run(inputs [][]linalg.Vector) [][]linalg.Vector
 }
