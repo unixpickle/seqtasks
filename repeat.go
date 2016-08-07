@@ -74,42 +74,12 @@ func (r *RepeatTask) NewSamples(n int) sgd.SampleSet {
 // up to the recall phase.
 // Output values from the model are rounded to 0 or 1.
 func (r *RepeatTask) Score(m Model, batchSize, batchCount int) float64 {
-	var totalOutputs int
-	var totalCorrect int
-	for i := 0; i < batchCount; i++ {
-		batch := r.NewSamples(batchSize)
-		var inSeqs [][]linalg.Vector
-		var expected [][]linalg.Vector
-		for j := 0; j < batch.Len(); j++ {
-			sample := batch.GetSample(j).(seqtoseq.Sample)
-			inSeqs = append(inSeqs, sample.Inputs)
-			expected = append(expected, sample.Outputs)
-		}
-		actual := m.Run(inSeqs)
-		for lane, expSeq := range expected {
-			actSeq := actual[lane]
-			var recallPhase bool
-			for j, expVec := range expSeq {
-				if !recallPhase {
-					inVal := inSeqs[lane][j][2]
-					recallPhase = (inVal == 1)
-					continue
-				}
-				actVec := actSeq[j]
-				for k, x := range expVec {
-					a := int(actVec[k] + 0.5)
-					if a < 0 {
-						a = 0
-					} else if a > 1 {
-						a = 1
-					}
-					if float64(a) == x {
-						totalCorrect++
-					}
-					totalOutputs++
-				}
+	return roundedBinaryTailScore(r, m, batchSize, batchCount, func(s []linalg.Vector) int {
+		for i, x := range s {
+			if x[2] == 1 {
+				return i + 1
 			}
 		}
-	}
-	return float64(totalCorrect) / float64(totalOutputs)
+		panic("no tail found")
+	})
 }
