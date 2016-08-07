@@ -5,8 +5,6 @@ package seqtasks
 import (
 	"github.com/unixpickle/num-analysis/linalg"
 	"github.com/unixpickle/sgd"
-	"github.com/unixpickle/weakai/neuralnet"
-	"github.com/unixpickle/weakai/rnn/seqtoseq"
 )
 
 // A Task is a benchmark or test for a sequence-to-sequence
@@ -22,7 +20,7 @@ type Task interface {
 
 	// NewSamples creates a new set of training or testing
 	// samples for this task.
-	NewSamples(count int) seqtoseq.Sample
+	NewSamples(count int) sgd.SampleSet
 }
 
 // A Model learns to solve Tasks.

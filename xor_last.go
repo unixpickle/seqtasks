@@ -1,5 +1,12 @@
 package seqtasks
 
+import (
+	"math/rand"
+
+	"github.com/unixpickle/sgd"
+	"github.com/unixpickle/weakai/rnn/seqtoseq"
+)
+
 // An XORLastTask tests a model's ability to XOR the input bit
 // with the previous input bit.
 // All inputs and outputs are either 0 or 1.
@@ -31,7 +38,7 @@ func (x *XORLastTask) NewSamples(count int) sgd.SampleSet {
 			if j == 0 {
 				seq.Outputs = append(seq.Outputs, []float64{input})
 			} else {
-				last := seq.Inputs[j-1]
+				last := seq.Inputs[j-1][0]
 				xor1 := (last == 1 && input == 0) ||
 					(last == 0 && input == 1)
 				if xor1 {
