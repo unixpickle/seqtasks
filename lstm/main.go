@@ -54,8 +54,26 @@ func main() {
 			TestingBatch: 10,
 			TestingCount: 30,
 		},
+		{
+			Name: "Match Open",
+			Task: &seqtasks.MatchOpenTask{
+				MinLen:  1,
+				MaxLen:  15,
+				MaxOpen: 6,
+			},
+			Model: &BlockModel{
+				Block:         NewBlock(3, 40, 40, 1),
+				Cost:          &neuralnet.SigmoidCECost{},
+				OutActivation: &neuralnet.Sigmoid{},
+			},
+			MaxEpochs:    50,
+			MaxScore:     1,
+			TrainingSize: 100,
+			TestingBatch: 10,
+			TestingCount: 30,
+		},
 	}
-	for _, task := range tasks[1:] {
+	for _, task := range tasks {
 		log.Println("Running task", task.Name, "...")
 		samples := task.Task.NewSamples(task.TrainingSize)
 		for i := 0; i < task.MaxEpochs; i++ {

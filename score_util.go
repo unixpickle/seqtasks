@@ -20,37 +20,36 @@ func roundedBinaryScore(t Task, m Model, batchSize, batchCount int) float64 {
 func roundedBinaryTailScore(t Task, m Model, batchSize, batchCount int,
 	tailFunc func(seq []linalg.Vector) int) float64 {
 	var totalOutputs int
-        var totalCorrect int
-        for i := 0; i < batchCount; i++ {
-                batch := t.NewSamples(batchSize)
-                var inputs [][]linalg.Vector
-                var expected [][]linalg.Vector
-                for i := 0; i < batch.Len(); i++ {
-                        sample := batch.GetSample(i).(seqtoseq.Sample)
-                        inputs = append(inputs, sample.Inputs)
-                        expected = append(expected, sample.Outputs)
-                }
-                actual := m.Run(inputs)
-                for lane, expSeq := range expected {
+	var totalCorrect int
+	for i := 0; i < batchCount; i++ {
+		batch := t.NewSamples(batchSize)
+		var inputs [][]linalg.Vector
+		var expected [][]linalg.Vector
+		for i := 0; i < batch.Len(); i++ {
+			sample := batch.GetSample(i).(seqtoseq.Sample)
+			inputs = append(inputs, sample.Inputs)
+			expected = append(expected, sample.Outputs)
+		}
+		actual := m.Run(inputs)
+		for lane, expSeq := range expected {
 			tailIdx := tailFunc(inputs[lane])
-                        actSeq := actual[lane][tailIdx:]
-                        for t, expVec := range expSeq[tailIdx:] {
-                                actVec := actSeq[t]
-                                for j, x := range expVec {
-                                        a := int(actVec[j] + 0.5)
-                                        if a < 0 {
-                                                a = 0
-                                        } else if a > 1 {
-                                                a = 1
-                                        }
-                                        if float64(a) == x {
-                                                totalCorrect++
-                                        }
-                                        totalOutputs++
-                                }
-                        }
-                }
-        }
-        return float64(totalCorrect) / float64(totalOutputs)
+			actSeq := actual[lane][tailIdx:]
+			for t, expVec := range expSeq[tailIdx:] {
+				actVec := actSeq[t]
+				for j, x := range expVec {
+					a := int(actVec[j] + 0.5)
+					if a < 0 {
+						a = 0
+					} else if a > 1 {
+						a = 1
+					}
+					if float64(a) == x {
+						totalCorrect++
+					}
+					totalOutputs++
+				}
+			}
+		}
+	}
+	return float64(totalCorrect) / float64(totalOutputs)
 }
-
