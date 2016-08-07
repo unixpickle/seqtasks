@@ -52,3 +52,9 @@ func (x *XORLastTask) NewSamples(count int) sgd.SampleSet {
 	}
 	return set
 }
+
+// Score returns the fraction of correct answers the model
+// returns when the model's outputs are rounded to 0 or 1.
+func (x *XORLastTask) Score(m Model, batchSize, batchCount int) float64 {
+	return roundedBinaryScore(x, m, batchSize, batchCount)
+}

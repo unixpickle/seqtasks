@@ -21,6 +21,13 @@ type Task interface {
 	// NewSamples creates a new set of training or testing
 	// samples for this task.
 	NewSamples(count int) sgd.SampleSet
+
+	// Score returns a task-specific score indicating how
+	// well a model does on the task.
+	// The task is run batchSize*batchCount times, where
+	// the model's Run function is passed batches of size
+	// batchSize.
+	Score(m Model, batchSize, batchCount int) float64
 }
 
 // A Model learns to solve Tasks.

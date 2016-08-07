@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/unixpickle/seqtasks"
@@ -12,6 +11,12 @@ type Task struct {
 	Name  string
 	Task  seqtasks.Task
 	Model seqtasks.Model
+
+	MaxEpochs    int
+	MaxScore     float64
+	TrainingSize int
+	TestingBatch int
+	TestingCount int
 }
 
 func main() {
@@ -24,14 +29,23 @@ func main() {
 				Cost:          &neuralnet.SigmoidCECost{},
 				OutActivation: &neuralnet.Sigmoid{},
 			},
+			MaxEpochs:    50,
+			MaxScore:     1,
+			TrainingSize: 100,
+			TestingBatch: 10,
+			TestingCount: 10,
 		},
 	}
 	for _, task := range tasks {
 		log.Println("Running task", task.Name, "...")
-		samples := task.Task.NewSamples(100)
-		for {
+		samples := task.Task.NewSamples(task.TrainingSize)
+		for i := 0; i < task.MaxEpochs; i++ {
 			task.Model.Train(samples)
-			fmt.Println("ran iteration")
+			score := task.Task.Score(task.Model, task.TestingBatch, task.TestingCount)
+			log.Printf("epoch %d: score=%f", i, score)
+			if score >= task.MaxScore {
+				break
+			}
 		}
 	}
 }
