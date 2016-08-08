@@ -64,6 +64,7 @@ func (m *MatchMultiTask) NewSamples(n int) sgd.SampleSet {
 				inVec := make(linalg.Vector, m.InputSize())
 				inVec[newSym] = 1
 				sample.Inputs = append(sample.Inputs, inVec)
+				symbolStack = append(symbolStack, newSym)
 			} else {
 				lastSym := symbolStack[len(symbolStack)-1]
 				symbolStack = symbolStack[:len(symbolStack)-1]
