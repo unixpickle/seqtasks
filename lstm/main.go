@@ -40,8 +40,8 @@ func main() {
 			Task: &seqtasks.RepeatTask{
 				MinString: 2,
 				MaxString: 5,
-				MinGap: 0,
-				MaxGap: 6,
+				MinGap:    0,
+				MaxGap:    6,
 			},
 			Model: &BlockModel{
 				Block:         NewBlock(3, 100, 100, 1),
@@ -69,6 +69,25 @@ func main() {
 			MaxEpochs:    50,
 			MaxScore:     1,
 			TrainingSize: 100,
+			TestingBatch: 10,
+			TestingCount: 30,
+		},
+		{
+			Name: "Match Multi",
+			Task: &seqtasks.MatchMultiTask{
+				TypeCount: 4,
+				MinLen:    1,
+				MaxLen:    50,
+				CloseProb: 0.2,
+			},
+			Model: &BlockModel{
+				Block:         NewBlock(4*2+1, 40, 40, 4+1),
+				Cost:          &neuralnet.SigmoidCECost{},
+				OutActivation: &neuralnet.Sigmoid{},
+			},
+			MaxEpochs:    50,
+			MaxScore:     1,
+			TrainingSize: 50,
 			TestingBatch: 10,
 			TestingCount: 30,
 		},
