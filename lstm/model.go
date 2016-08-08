@@ -19,6 +19,12 @@ const (
 // The resulting network will output a scaler, so adding
 // an activation function may be required.
 func NewBlock(inSize, hiddenSize, outHiddenSize, outCount int) rnn.StackedBlock {
+	return NewDeepBlock(inSize, hiddenSize, 1, outHiddenSize, outCount)
+}
+
+// NewDeepBlock is like NewBlock, except that it allows
+// the caller to specify the number of LSTM layers.
+func NewDeepBlock(inSize, hiddenSize, hiddenCount, outHiddenSize, outCount int) rnn.StackedBlock {
 	outNet := neuralnet.Network{
 		&neuralnet.DenseLayer{
 			InputCount:  hiddenSize,
@@ -32,8 +38,16 @@ func NewBlock(inSize, hiddenSize, outHiddenSize, outCount int) rnn.StackedBlock 
 	}
 	outNet.Randomize()
 	outBlock := rnn.NewNetworkBlock(outNet, 0)
-	rnnBlock := rnn.NewLSTM(inSize, hiddenSize)
-	return rnn.StackedBlock{rnnBlock, outBlock}
+	var res rnn.StackedBlock
+	for i := 0; i < hiddenCount; i++ {
+		if i == 0 {
+			res = append(res, rnn.NewLSTM(inSize, hiddenSize))
+		} else {
+			res = append(res, rnn.NewLSTM(hiddenSize, hiddenSize))
+		}
+	}
+	res = append(res, outBlock)
+	return res
 }
 
 // A BlockModel is a seqtasks.Model which uses an rnn.Block
