@@ -44,7 +44,7 @@ func main() {
 	}
 
 	tasks := []Task{
-		/*{
+		{
 			Name: "XOR last",
 			Task: &seqtasks.XORLastTask{SeqLen: 50},
 			Model: &SeqFuncModel{
@@ -94,7 +94,7 @@ func main() {
 			TrainingSize: 100,
 			TestingBatch: 10,
 			TestingCount: 30,
-		},*/
+		},
 		{
 			Name: "Match Multi",
 			Task: &seqtasks.MatchMultiTask{
