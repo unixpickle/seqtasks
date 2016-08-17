@@ -77,7 +77,7 @@ func main() {
 			Task: &seqtasks.MatchMultiTask{
 				TypeCount: 4,
 				MinLen:    1,
-				MaxLen:    5,
+				MaxLen:    8,
 				CloseProb: 0.3,
 			},
 			Model: &BlockModel{
@@ -85,11 +85,11 @@ func main() {
 				Cost:          &neuralnet.SigmoidCECost{},
 				OutActivation: &neuralnet.Sigmoid{},
 			},
-			MaxEpochs:    100,
+			MaxEpochs:    1000,
 			MaxScore:     1,
 			TrainingSize: 3000,
-			TestingBatch: 10,
-			TestingCount: 30,
+			TestingBatch: 20,
+			TestingCount: 100,
 		},
 	}
 	for _, task := range tasks {

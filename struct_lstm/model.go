@@ -55,6 +55,16 @@ func NewDeepSeqFunc(s neuralstruct.RStruct, inSize, hiddenSize, hiddenCount, out
 	}
 }
 
+// AddActivation adds an activation function to the output
+// layer of the given SeqFunc.
+func AddActivation(s *neuralstruct.SeqFunc, a neuralnet.Layer) *neuralstruct.SeqFunc {
+	block := s.Block.(rnn.StackedBlock)
+	network := block[len(block)-1].(*rnn.NetworkBlock).Network()
+	network = append(network, a)
+	block[len(block)-1] = rnn.NewNetworkBlock(network, 0)
+	return s
+}
+
 // A SeqFuncModel is a seqtasks.Model which uses a
 // neuralstruct.SeqFunc and a cost function.
 type SeqFuncModel struct {

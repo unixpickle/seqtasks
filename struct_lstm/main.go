@@ -26,6 +26,9 @@ var StructNames = []string{"stack"}
 var Structs = map[string]neuralstruct.RStruct{
 	"stack": &neuralstruct.Stack{VectorSize: 40},
 }
+var Activations = map[string]neuralnet.Layer{
+	"stack": &StackActivation{VecSize: 40},
+}
 
 func main() {
 	if len(os.Args) != 2 {
@@ -42,13 +45,15 @@ func main() {
 		fmt.Fprintln(os.Stderr, "Unknown struct:", os.Args[1])
 		os.Exit(1)
 	}
+	activation := Activations[os.Args[1]]
 
 	tasks := []Task{
 		{
 			Name: "XOR last",
 			Task: &seqtasks.XORLastTask{SeqLen: 50},
 			Model: &SeqFuncModel{
-				SeqFunc:       NewSeqFunc(structure, 1, 40, 40, 1),
+				SeqFunc: AddActivation(NewSeqFunc(structure, 1, 40, 40, 1),
+					activation),
 				Cost:          &neuralnet.SigmoidCECost{},
 				OutActivation: &neuralnet.Sigmoid{},
 			},
@@ -67,7 +72,8 @@ func main() {
 				MaxGap:    6,
 			},
 			Model: &SeqFuncModel{
-				SeqFunc:       NewSeqFunc(structure, 3, 100, 100, 1),
+				SeqFunc: AddActivation(NewSeqFunc(structure, 3, 100, 100, 1),
+					activation),
 				Cost:          &neuralnet.SigmoidCECost{},
 				OutActivation: &neuralnet.Sigmoid{},
 			},
@@ -85,7 +91,8 @@ func main() {
 				MaxOpen: 6,
 			},
 			Model: &SeqFuncModel{
-				SeqFunc:       NewSeqFunc(structure, 3, 40, 40, 1),
+				SeqFunc: AddActivation(NewSeqFunc(structure, 3, 40, 40, 1),
+					activation),
 				Cost:          &neuralnet.SigmoidCECost{},
 				OutActivation: &neuralnet.Sigmoid{},
 			},
@@ -100,19 +107,20 @@ func main() {
 			Task: &seqtasks.MatchMultiTask{
 				TypeCount: 4,
 				MinLen:    1,
-				MaxLen:    5,
+				MaxLen:    8,
 				CloseProb: 0.3,
 			},
 			Model: &SeqFuncModel{
-				SeqFunc:       NewDeepSeqFunc(structure, 4*2+1, 100, 2, 100, 4+1),
+				SeqFunc: AddActivation(NewDeepSeqFunc(structure, 4*2+1, 100, 2, 100, 4+1),
+					activation),
 				Cost:          &neuralnet.SigmoidCECost{},
 				OutActivation: &neuralnet.Sigmoid{},
 			},
-			MaxEpochs:    100,
+			MaxEpochs:    1000,
 			MaxScore:     1,
 			TrainingSize: 3000,
-			TestingBatch: 10,
-			TestingCount: 30,
+			TestingBatch: 20,
+			TestingCount: 100,
 		},
 	}
 	for _, task := range tasks {
