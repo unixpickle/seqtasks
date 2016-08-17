@@ -1,8 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"os"
 
+	"github.com/unixpickle/neuralstruct"
 	"github.com/unixpickle/seqtasks"
 	"github.com/unixpickle/weakai/neuralnet"
 )
@@ -19,13 +22,33 @@ type Task struct {
 	TestingCount int
 }
 
+var StructNames = []string{"stack"}
+var Structs = map[string]neuralstruct.RStruct{
+	"stack": &neuralstruct.Stack{VectorSize: 40},
+}
+
 func main() {
+	if len(os.Args) != 2 {
+		fmt.Fprintln(os.Stderr, "Usage:", os.Args[0], "<struct>")
+		fmt.Fprintln(os.Stderr, "Available structs:")
+		for _, s := range StructNames {
+			fmt.Fprintln(os.Stderr, " -", s)
+		}
+		os.Exit(1)
+	}
+
+	structure, ok := Structs[os.Args[1]]
+	if !ok {
+		fmt.Fprintln(os.Stderr, "Unknown struct:", os.Args[1])
+		os.Exit(1)
+	}
+
 	tasks := []Task{
-		{
+		/*{
 			Name: "XOR last",
 			Task: &seqtasks.XORLastTask{SeqLen: 50},
-			Model: &BlockModel{
-				Block:         NewBlock(1, 40, 40, 1),
+			Model: &SeqFuncModel{
+				SeqFunc:       NewSeqFunc(structure, 1, 40, 40, 1),
 				Cost:          &neuralnet.SigmoidCECost{},
 				OutActivation: &neuralnet.Sigmoid{},
 			},
@@ -43,8 +66,8 @@ func main() {
 				MinGap:    0,
 				MaxGap:    6,
 			},
-			Model: &BlockModel{
-				Block:         NewBlock(3, 100, 100, 1),
+			Model: &SeqFuncModel{
+				SeqFunc:       NewSeqFunc(structure, 3, 100, 100, 1),
 				Cost:          &neuralnet.SigmoidCECost{},
 				OutActivation: &neuralnet.Sigmoid{},
 			},
@@ -61,8 +84,8 @@ func main() {
 				MaxLen:  15,
 				MaxOpen: 6,
 			},
-			Model: &BlockModel{
-				Block:         NewBlock(3, 40, 40, 1),
+			Model: &SeqFuncModel{
+				SeqFunc:       NewSeqFunc(structure, 3, 40, 40, 1),
 				Cost:          &neuralnet.SigmoidCECost{},
 				OutActivation: &neuralnet.Sigmoid{},
 			},
@@ -71,7 +94,7 @@ func main() {
 			TrainingSize: 100,
 			TestingBatch: 10,
 			TestingCount: 30,
-		},
+		},*/
 		{
 			Name: "Match Multi",
 			Task: &seqtasks.MatchMultiTask{
@@ -80,8 +103,8 @@ func main() {
 				MaxLen:    5,
 				CloseProb: 0.3,
 			},
-			Model: &BlockModel{
-				Block:         NewDeepBlock(4*2+1, 100, 2, 100, 4+1),
+			Model: &SeqFuncModel{
+				SeqFunc:       NewDeepSeqFunc(structure, 4*2+1, 100, 2, 100, 4+1),
 				Cost:          &neuralnet.SigmoidCECost{},
 				OutActivation: &neuralnet.Sigmoid{},
 			},
