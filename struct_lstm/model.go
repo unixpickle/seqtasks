@@ -13,6 +13,7 @@ import (
 const (
 	StepSize  = 0.001
 	BatchSize = 1
+	PushBias  = 2
 )
 
 // NewSeqFunc creates a neuralstruct.SeqFunc with an
@@ -44,6 +45,10 @@ func NewDeepSeqFunc(s neuralstruct.RStruct, inSize, hiddenSize, hiddenCount, out
 		},
 	}
 	outNet.Randomize()
+
+	outBiases := outNet[2].(*neuralnet.DenseLayer).Biases.Var.Vector
+	outBiases[neuralstruct.StackPush] = PushBias
+
 	outBlock := rnn.NewNetworkBlock(outNet, 0)
 	var resBlock rnn.StackedBlock
 	for i := 0; i < hiddenCount; i++ {
