@@ -37,6 +37,11 @@ func NewDeepSeqFunc(s neuralstruct.RStruct, inSize, hiddenSize, hiddenCount, out
 			InputCount:  outHiddenSize,
 			OutputCount: outCount + s.ControlSize(),
 		},
+		&neuralstruct.PartialActivation{
+			SquashStart: s.ControlSize() - s.DataSize(),
+			SquashEnd:   s.ControlSize(),
+			Activation:  &neuralnet.Sigmoid{},
+		},
 	}
 	outNet.Randomize()
 	outBlock := rnn.NewNetworkBlock(outNet, 0)

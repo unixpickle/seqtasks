@@ -22,12 +22,10 @@ type Task struct {
 	TestingCount int
 }
 
-var StructNames = []string{"stack"}
+var StructNames = []string{"stack", "queue"}
 var Structs = map[string]neuralstruct.RStruct{
 	"stack": &neuralstruct.Stack{VectorSize: 40},
-}
-var Activations = map[string]neuralnet.Layer{
-	"stack": &StackActivation{VecSize: 40},
+	"queue": &neuralstruct.Queue{VectorSize: 40},
 }
 
 func main() {
@@ -45,15 +43,13 @@ func main() {
 		fmt.Fprintln(os.Stderr, "Unknown struct:", os.Args[1])
 		os.Exit(1)
 	}
-	activation := Activations[os.Args[1]]
 
 	tasks := []Task{
 		{
 			Name: "XOR last",
 			Task: &seqtasks.XORLastTask{SeqLen: 50},
 			Model: &SeqFuncModel{
-				SeqFunc: AddActivation(NewSeqFunc(structure, 1, 40, 40, 1),
-					activation),
+				SeqFunc:       NewSeqFunc(structure, 1, 40, 40, 1),
 				Cost:          &neuralnet.SigmoidCECost{},
 				OutActivation: &neuralnet.Sigmoid{},
 			},
@@ -72,12 +68,11 @@ func main() {
 				MaxGap:    6,
 			},
 			Model: &SeqFuncModel{
-				SeqFunc: AddActivation(NewSeqFunc(structure, 3, 100, 100, 1),
-					activation),
+				SeqFunc:       NewSeqFunc(structure, 3, 100, 100, 1),
 				Cost:          &neuralnet.SigmoidCECost{},
 				OutActivation: &neuralnet.Sigmoid{},
 			},
-			MaxEpochs:    100,
+			MaxEpochs:    300,
 			MaxScore:     1,
 			TrainingSize: 300,
 			TestingBatch: 10,
@@ -91,8 +86,7 @@ func main() {
 				MaxOpen: 6,
 			},
 			Model: &SeqFuncModel{
-				SeqFunc: AddActivation(NewSeqFunc(structure, 3, 40, 40, 1),
-					activation),
+				SeqFunc:       NewSeqFunc(structure, 3, 40, 40, 1),
 				Cost:          &neuralnet.SigmoidCECost{},
 				OutActivation: &neuralnet.Sigmoid{},
 			},
@@ -111,8 +105,7 @@ func main() {
 				CloseProb: 0.3,
 			},
 			Model: &SeqFuncModel{
-				SeqFunc: AddActivation(NewDeepSeqFunc(structure, 4*2+1, 100, 2, 100, 4+1),
-					activation),
+				SeqFunc:       NewDeepSeqFunc(structure, 4*2+1, 100, 2, 100, 4+1),
 				Cost:          &neuralnet.SigmoidCECost{},
 				OutActivation: &neuralnet.Sigmoid{},
 			},
