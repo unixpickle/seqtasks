@@ -64,18 +64,22 @@ type BlockModel struct {
 	// If this is nil, no activation will be applied for
 	// calls to Run.
 	OutActivation autofunc.Func
+
+	gradienter sgd.Gradienter
 }
 
 // Train runs one epoch of SGD on the entire sample set.
 func (b *BlockModel) Train(s sgd.SampleSet) {
-	gradienter := &sgd.Adam{
-		Gradienter: &seqtoseq.BPTT{
-			Block:    b.Block,
-			Learner:  b.Block,
-			CostFunc: b.Cost,
-		},
+	if b.gradienter == nil {
+		b.gradienter = &sgd.Adam{
+			Gradienter: &seqtoseq.BPTT{
+				Block:    b.Block,
+				Learner:  b.Block,
+				CostFunc: b.Cost,
+			},
+		}
 	}
-	sgd.SGD(gradienter, s, StepSize, 1, BatchSize)
+	sgd.SGD(b.gradienter, s, StepSize, 1, BatchSize)
 }
 
 // Run applies the RNN to all the inputs in batch, then

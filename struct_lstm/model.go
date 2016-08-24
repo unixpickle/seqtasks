@@ -81,18 +81,22 @@ type SeqFuncModel struct {
 	// cost function like neuralnet.SigmoidCECost.
 	// See ../lstm/model.go for more.
 	OutActivation autofunc.Func
+
+	gradienter sgd.Gradienter
 }
 
 // Train runs one epoch of SGD on the entire sample set.
 func (s *SeqFuncModel) Train(samples sgd.SampleSet) {
-	gradienter := &sgd.Adam{
-		Gradienter: &seqtoseq.SeqFuncGradienter{
-			SeqFunc:  s.SeqFunc,
-			Learner:  s.SeqFunc,
-			CostFunc: s.Cost,
-		},
+	if s.gradienter == nil {
+		s.gradienter = &sgd.Adam{
+			Gradienter: &seqtoseq.SeqFuncGradienter{
+				SeqFunc:  s.SeqFunc,
+				Learner:  s.SeqFunc,
+				CostFunc: s.Cost,
+			},
+		}
 	}
-	sgd.SGD(gradienter, samples, StepSize, 1, BatchSize)
+	sgd.SGD(s.gradienter, samples, StepSize, 1, BatchSize)
 }
 
 // Run applies the SeqFunc to all the inputs in batch,
