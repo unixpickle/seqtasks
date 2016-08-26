@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
+	"time"
 
 	"github.com/unixpickle/neuralstruct"
 	"github.com/unixpickle/seqtasks"
@@ -22,13 +24,31 @@ type Task struct {
 	TestingCount int
 }
 
-var StructNames = []string{"stack", "queue"}
+var StructNames = []string{"stack", "queue", "multiqueue", "multistack"}
 var Structs = map[string]neuralstruct.RStruct{
-	"stack": &neuralstruct.Stack{VectorSize: 40},
-	"queue": &neuralstruct.Queue{VectorSize: 40},
+	"stack": &neuralstruct.Stack{VectorSize: 10},
+	"queue": &neuralstruct.Queue{VectorSize: 10},
+	"multiqueue": neuralstruct.RAggregate{
+		&neuralstruct.Queue{VectorSize: 4},
+		&neuralstruct.Queue{VectorSize: 4},
+		&neuralstruct.Queue{VectorSize: 4},
+		&neuralstruct.Queue{VectorSize: 4},
+		&neuralstruct.Queue{VectorSize: 4},
+		&neuralstruct.Queue{VectorSize: 4},
+	},
+	"multistack": neuralstruct.RAggregate{
+		&neuralstruct.Stack{VectorSize: 4},
+		&neuralstruct.Stack{VectorSize: 4},
+		&neuralstruct.Stack{VectorSize: 4},
+		&neuralstruct.Stack{VectorSize: 4},
+		&neuralstruct.Stack{VectorSize: 4},
+		&neuralstruct.Stack{VectorSize: 4},
+	},
 }
 
 func main() {
+	rand.Seed(time.Now().UnixNano())
+
 	if len(os.Args) != 2 {
 		fmt.Fprintln(os.Stderr, "Usage:", os.Args[0], "<struct>")
 		fmt.Fprintln(os.Stderr, "Available structs:")
@@ -68,7 +88,7 @@ func main() {
 				MaxGap:    6,
 			},
 			Model: &SeqFuncModel{
-				SeqFunc:       NewSeqFunc(structure, 3, 100, 100, 1),
+				SeqFunc:       NewSeqFunc(structure, 3, 40, 40, 1),
 				Cost:          &neuralnet.SigmoidCECost{},
 				OutActivation: &neuralnet.Sigmoid{},
 			},

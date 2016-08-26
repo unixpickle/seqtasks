@@ -13,7 +13,6 @@ import (
 const (
 	StepSize  = 0.001
 	BatchSize = 1
-	PushBias  = 2
 )
 
 // NewSeqFunc creates a neuralstruct.SeqFunc with an
@@ -33,25 +32,14 @@ func NewDeepSeqFunc(s neuralstruct.RStruct, inSize, hiddenSize, hiddenCount, out
 			InputCount:  hiddenSize,
 			OutputCount: outHiddenSize,
 		},
-		&neuralnet.Sigmoid{},
+		&neuralnet.HyperbolicTangent{},
 		&neuralnet.DenseLayer{
 			InputCount:  outHiddenSize,
 			OutputCount: outCount + s.ControlSize(),
 		},
-		&neuralstruct.PartialActivation{
-			Ranges: []neuralstruct.ComponentRange{
-				{
-					Start: s.ControlSize() - s.DataSize(),
-					End:   s.ControlSize(),
-				},
-			},
-			Activations: []neuralnet.Layer{&neuralnet.Sigmoid{}},
-		},
+		dataActivation(s),
 	}
 	outNet.Randomize()
-
-	outBiases := outNet[2].(*neuralnet.DenseLayer).Biases.Var.Vector
-	outBiases[neuralstruct.StackPush] = PushBias
 
 	outBlock := rnn.NewNetworkBlock(outNet, 0)
 	var resBlock rnn.StackedBlock
@@ -69,14 +57,24 @@ func NewDeepSeqFunc(s neuralstruct.RStruct, inSize, hiddenSize, hiddenCount, out
 	}
 }
 
-// AddActivation adds an activation function to the output
-// layer of the given SeqFunc.
-func AddActivation(s *neuralstruct.SeqFunc, a neuralnet.Layer) *neuralstruct.SeqFunc {
-	block := s.Block.(rnn.StackedBlock)
-	network := block[len(block)-1].(*rnn.NetworkBlock).Network()
-	network = append(network, a)
-	block[len(block)-1] = rnn.NewNetworkBlock(network, 0)
-	return s
+func dataActivation(s neuralstruct.RStruct) neuralnet.Layer {
+	ag, ok := s.(neuralstruct.RAggregate)
+	if !ok {
+		ag = neuralstruct.RAggregate{s}
+	}
+	var activation neuralstruct.PartialActivation
+	var idx int
+	for _, subStruct := range ag {
+		r := neuralstruct.ComponentRange{
+			Start: idx + subStruct.ControlSize() - subStruct.DataSize(),
+			End:   idx + subStruct.ControlSize(),
+		}
+		activation.Ranges = append(activation.Ranges, r)
+		activation.Activations = append(activation.Activations,
+			&neuralnet.HyperbolicTangent{})
+		idx = r.End
+	}
+	return &activation
 }
 
 // A SeqFuncModel is a seqtasks.Model which uses a
