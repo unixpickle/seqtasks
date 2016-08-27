@@ -37,12 +37,12 @@ var Structs = map[string]neuralstruct.RStruct{
 		&neuralstruct.Queue{VectorSize: 4},
 	},
 	"multistack": neuralstruct.RAggregate{
-		&neuralstruct.Stack{VectorSize: 4},
-		&neuralstruct.Stack{VectorSize: 4},
-		&neuralstruct.Stack{VectorSize: 4},
-		&neuralstruct.Stack{VectorSize: 4},
-		&neuralstruct.Stack{VectorSize: 4},
-		&neuralstruct.Stack{VectorSize: 4},
+		&neuralstruct.Stack{VectorSize: 4, NoReplace: true},
+		&neuralstruct.Stack{VectorSize: 4, NoReplace: true},
+		&neuralstruct.Stack{VectorSize: 4, NoReplace: true},
+		&neuralstruct.Stack{VectorSize: 4, NoReplace: true},
+		&neuralstruct.Stack{VectorSize: 4, NoReplace: true},
+		&neuralstruct.Stack{VectorSize: 4, NoReplace: true},
 	},
 }
 
@@ -125,7 +125,7 @@ func main() {
 				CloseProb: 0.3,
 			},
 			Model: &SeqFuncModel{
-				SeqFunc:       NewDeepSeqFunc(structure, 4*2+1, 100, 2, 100, 4+1),
+				SeqFunc:       NewDeepSeqFunc(structure, 4*2+1, 40, 1, 40, 4+1),
 				Cost:          &neuralnet.SigmoidCECost{},
 				OutActivation: &neuralnet.Sigmoid{},
 			},
