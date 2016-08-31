@@ -39,6 +39,39 @@ type Model struct {
 	gradienter sgd.Gradienter
 }
 
+func NewBlockModel(inSize, hiddenSize, hiddenCount, outHiddenSize, outCount int,
+	blockMaker func(inSize, hiddenSize int) rnn.Block) *Model {
+	outNet := neuralnet.Network{
+		&neuralnet.DenseLayer{
+			InputCount:  hiddenSize,
+			OutputCount: outHiddenSize,
+		},
+		&neuralnet.Sigmoid{},
+		&neuralnet.DenseLayer{
+			InputCount:  outHiddenSize,
+			OutputCount: outCount,
+		},
+	}
+	outNet.Randomize()
+	outBlock := rnn.NewNetworkBlock(outNet, 0)
+	var res rnn.StackedBlock
+	for i := 0; i < hiddenCount; i++ {
+		if i == 0 {
+			res = append(res, blockMaker(inSize, hiddenSize))
+		} else {
+			res = append(res, blockMaker(hiddenSize, hiddenSize))
+		}
+	}
+	res = append(res, outBlock)
+	return &Model{
+		SeqFunc:       &rnn.BlockSeqFunc{Block: res},
+		Learner:       res,
+		Runner:        &rnn.Runner{Block: res},
+		Cost:          &neuralnet.SigmoidCECost{},
+		OutActivation: &neuralnet.Sigmoid{},
+	}
+}
+
 // Train runs one epoch of SGD on the entire sample set.
 func (s *Model) Train(samples sgd.SampleSet) {
 	if s.gradienter == nil {
