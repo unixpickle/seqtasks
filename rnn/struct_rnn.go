@@ -25,6 +25,14 @@ var Structs = map[string]neuralstruct.RStruct{
 		&neuralstruct.Stack{VectorSize: 4, NoReplace: true},
 		&neuralstruct.Stack{VectorSize: 4, NoReplace: true},
 	},
+	"ffstruct": neuralstruct.RAggregate{
+		&neuralstruct.Queue{VectorSize: 6},
+		&neuralstruct.Queue{VectorSize: 6},
+		&neuralstruct.Queue{VectorSize: 6},
+		&neuralstruct.Stack{VectorSize: 6, NoReplace: true},
+		&neuralstruct.Stack{VectorSize: 6, NoReplace: true},
+		&neuralstruct.Stack{VectorSize: 6, NoReplace: true},
+	},
 }
 
 // NewStructLSTM creates a new struct RNN with an LSTM
@@ -63,6 +71,44 @@ func NewStructLSTM(s neuralstruct.RStruct, inSize, hiddenSize, hiddenCount, outH
 		SeqFunc:       seqFunc,
 		Learner:       seqFunc,
 		Runner:        &neuralstruct.Runner{Block: resBlock, Struct: s},
+		Cost:          &neuralnet.SigmoidCECost{},
+		OutActivation: &neuralnet.Sigmoid{},
+	}
+}
+
+// NewStructFeedforward creates a struct RNN with a
+// feed-forward neural controller.
+func NewStructFeedforward(s neuralstruct.RStruct, in, out int, hidden ...int) *Model {
+	var network neuralnet.Network
+	for i, size := range hidden {
+		lastSize := in + s.DataSize()
+		if i > 0 {
+			lastSize = hidden[i-1]
+		}
+		network = append(network, &neuralnet.DenseLayer{
+			InputCount:  lastSize,
+			OutputCount: size,
+		})
+		network = append(network, &neuralnet.HyperbolicTangent{})
+	}
+	lastHiddenSize := in
+	if len(hidden) > 0 {
+		lastHiddenSize = hidden[len(hidden)-1]
+	}
+	network = append(network, &neuralnet.DenseLayer{
+		InputCount:  lastHiddenSize,
+		OutputCount: out + s.ControlSize(),
+	})
+	network = append(network, structDataActivation(s))
+	network.Randomize()
+	seqFunc := &neuralstruct.SeqFunc{
+		Block:  rnn.NewNetworkBlock(network, 0),
+		Struct: s,
+	}
+	return &Model{
+		SeqFunc:       seqFunc,
+		Learner:       seqFunc,
+		Runner:        &neuralstruct.Runner{Block: seqFunc.Block, Struct: s},
 		Cost:          &neuralnet.SigmoidCECost{},
 		OutActivation: &neuralnet.Sigmoid{},
 	}
