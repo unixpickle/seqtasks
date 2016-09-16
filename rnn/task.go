@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 
+	"github.com/unixpickle/mnist"
 	"github.com/unixpickle/seqtasks"
 )
 
@@ -129,6 +130,29 @@ var Tasks = []*Task{
 		MaxScore:     1,
 		TrainingSize: 3000,
 		TestingBatch: 20,
+		TestingCount: 100,
+	},
+	{
+		Name: "MNIST",
+		Task: &seqtasks.MNISTTask{
+			Training: mnist.LoadTrainingDataSet(),
+			Testing:  mnist.LoadTestingDataSet(),
+		},
+		Models: map[string]seqtasks.Model{
+			"lstm":       NewLSTM(2, 100, 2, 100, 10),
+			"stack":      NewStructLSTM(Structs["stack"], 2, 40, 1, 40, 10),
+			"queue":      NewStructLSTM(Structs["queue"], 2, 40, 1, 40, 10),
+			"multistack": NewStructLSTM(Structs["multistack"], 2, 40, 1, 40, 10),
+			"multiqueue": NewStructLSTM(Structs["multiqueue"], 2, 40, 1, 40, 10),
+			"irnn":       NewIRNN(2, 40, 3, 40, 10, 1),
+			"nprnn":      NewNPRNN(2, 40, 3, 40, 10),
+			"ffstruct":   NewStructFeedforward(Structs["ffstruct"], 2, 10, 40),
+			"hebbnet":    NewHebbNet(2, 20, 2, 40, 10),
+		},
+		MaxEpochs:    100,
+		MaxScore:     1,
+		TrainingSize: 100,
+		TestingBatch: 1,
 		TestingCount: 100,
 	},
 }

@@ -72,6 +72,15 @@ func NewBlockModel(inSize, hiddenSize, hiddenCount, outHiddenSize, outCount int,
 	}
 }
 
+// UseSoftmax switches the output cost and activation
+// to use softmax + cross entropy.
+// It returns s for convenience.
+func (s *Model) UseSoftmax() *Model {
+	s.Cost = &neuralnet.DotCost{}
+	s.OutActivation = &neuralnet.LogSoftmaxLayer{}
+	return s
+}
+
 // Train runs one epoch of SGD on the entire sample set.
 func (s *Model) Train(samples sgd.SampleSet) {
 	if s.gradienter == nil {
