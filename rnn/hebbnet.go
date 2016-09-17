@@ -10,6 +10,8 @@ import (
 func NewHebbNet(inSize, hiddenSize, hiddenCount, outHiddenSize, outCount int) *Model {
 	return NewBlockModel(inSize, hiddenSize, hiddenCount, outHiddenSize,
 		outCount, func(i, h int) rnn.Block {
-			return hebbnet.NewDenseLayer(i, h)
+			res := hebbnet.NewDenseLayer(i, h, true)
+			res.UseActivation = true
+			return res
 		})
 }

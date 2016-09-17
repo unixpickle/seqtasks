@@ -59,6 +59,26 @@ var Tasks = []*Task{
 		TestingCount: 10,
 	},
 	{
+		Name: "Addition",
+		Task: &seqtasks.AdditionTask{MaxDigits: 5, Base: 10},
+		Models: map[string]seqtasks.Model{
+			"lstm":       NewLSTM(11, 40, 2, 40, 10),
+			"stack":      NewStructLSTM(Structs["stack"], 11, 40, 1, 40, 10),
+			"queue":      NewStructLSTM(Structs["queue"], 11, 40, 1, 40, 10),
+			"multistack": NewStructLSTM(Structs["multistack"], 11, 40, 1, 40, 10),
+			"multiqueue": NewStructLSTM(Structs["multiqueue"], 11, 40, 1, 40, 10),
+			"irnn":       NewIRNN(11, 40, 3, 40, 10, 1),
+			"nprnn":      NewNPRNN(11, 40, 3, 40, 10),
+			"ffstruct":   NewStructFeedforward(Structs["ffstruct"], 11, 10, 40),
+			"hebbnet":    NewHebbNet(11, 20, 2, 40, 10),
+		},
+		MaxEpochs:    100,
+		MaxScore:     1,
+		TrainingSize: 300,
+		TestingBatch: 10,
+		TestingCount: 20,
+	},
+	{
 		Name: "Repeat",
 		Task: &seqtasks.RepeatTask{
 			MinString: 2,
