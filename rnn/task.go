@@ -26,8 +26,8 @@ func (t *Task) Run(modelName string) {
 		return
 	}
 	log.Printf("Running task \"%s\" with model \"%s\"", t.Name, modelName)
-	samples := t.Task.NewSamples(t.TrainingSize)
 	for i := 0; i < t.MaxEpochs; i++ {
+		samples := t.Task.NewSamples(t.TrainingSize)
 		model.Train(samples)
 		score := t.Task.Score(model, t.TestingBatch, t.TestingCount)
 		log.Printf("epoch %d: score=%f", i, score)

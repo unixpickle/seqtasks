@@ -23,8 +23,8 @@ type Task struct {
 func (t *Task) Run() {
 	rand.Seed(time.Now().UnixNano())
 	log.Printf("Running task \"%s\"", t.Name)
-	samples := t.Task.NewSamples(t.TrainingSize)
 	for i := 0; i < t.MaxEpochs; i++ {
+		samples := t.Task.NewSamples(t.TrainingSize)
 		t.Model.Train(samples)
 		score := t.Task.Score(t.Model, t.TestingBatch, t.TestingCount)
 		log.Printf("epoch %d: score=%f", i, score)
