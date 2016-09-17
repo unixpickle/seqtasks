@@ -149,7 +149,7 @@ var Tasks = []*Task{
 			"ffstruct":   NewStructFeedforward(Structs["ffstruct"], 2, 10, 40),
 			"hebbnet":    NewHebbNet(2, 20, 2, 40, 10),
 		},
-		MaxEpochs:    100,
+		MaxEpochs:    10000,
 		MaxScore:     1,
 		TrainingSize: 100,
 		TestingBatch: 1,
