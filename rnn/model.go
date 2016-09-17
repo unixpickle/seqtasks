@@ -76,8 +76,8 @@ func NewBlockModel(inSize, hiddenSize, hiddenCount, outHiddenSize, outCount int,
 // to use softmax + cross entropy.
 // It returns s for convenience.
 func (s *Model) UseSoftmax() *Model {
-	s.Cost = &neuralnet.DotCost{}
-	s.OutActivation = &neuralnet.LogSoftmaxLayer{}
+	s.Cost = dotSoftmaxCost{}
+	s.OutActivation = &autofunc.Softmax{}
 	return s
 }
 
@@ -108,4 +108,19 @@ func (s *Model) Run(inputs [][]linalg.Vector) [][]linalg.Vector {
 		}
 	}
 	return out
+}
+
+type dotSoftmaxCost struct{}
+
+func (_ dotSoftmaxCost) Cost(expected linalg.Vector, actual autofunc.Result) autofunc.Result {
+	var l neuralnet.LogSoftmaxLayer
+	squashed := l.Apply(actual)
+	return neuralnet.DotCost{}.Cost(expected, squashed)
+}
+
+func (_ dotSoftmaxCost) CostR(v autofunc.RVector, expected linalg.Vector,
+	actual autofunc.RResult) autofunc.RResult {
+	var l neuralnet.LogSoftmaxLayer
+	squashed := l.ApplyR(v, actual)
+	return neuralnet.DotCost{}.CostR(v, expected, squashed)
 }
