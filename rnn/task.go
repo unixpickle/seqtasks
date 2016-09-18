@@ -104,6 +104,31 @@ var Tasks = []*Task{
 		TestingCount: 30,
 	},
 	{
+		Name: "LagEcho",
+		Task: &seqtasks.RepeatTask{
+			MinString: 1,
+			MaxString: 1,
+			MinGap:    5,
+			MaxGap:    30,
+		},
+		Models: map[string]seqtasks.Model{
+			"lstm":       NewLSTM(3, 20, 1, 20, 1),
+			"stack":      NewStructLSTM(Structs["stack"], 3, 40, 1, 40, 1),
+			"queue":      NewStructLSTM(Structs["queue"], 3, 40, 1, 40, 1),
+			"multistack": NewStructLSTM(Structs["multistack"], 3, 40, 1, 40, 1),
+			"multiqueue": NewStructLSTM(Structs["multiqueue"], 3, 40, 1, 40, 1),
+			"irnn":       NewIRNN(3, 40, 4, 40, 1, 0.9),
+			"nprnn":      NewNPRNN(3, 40, 4, 40, 1),
+			"ffstruct":   NewStructFeedforward(Structs["ffstruct"], 3, 1, 40),
+			"hebbnet":    NewHebbNet(3, 40, 3, 40, 1),
+		},
+		MaxEpochs:    1000,
+		MaxScore:     1,
+		TrainingSize: 300,
+		TestingBatch: 10,
+		TestingCount: 30,
+	},
+	{
 		Name: "Match Open",
 		Task: &seqtasks.MatchOpenTask{
 			MinLen:  1,
