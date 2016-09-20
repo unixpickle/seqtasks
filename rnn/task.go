@@ -153,6 +153,26 @@ var Tasks = []*Task{
 		TestingCount: 30,
 	},
 	{
+		Name: "Random Recall",
+		Task: &seqtasks.RandomRecallTask{Bits: 4, SeqLen: 30},
+		Models: map[string]seqtasks.Model{
+			"lstm":       NewLSTM(6, 40, 1, 40, 4),
+			"stack":      NewStructLSTM(Structs["stack"], 6, 40, 1, 40, 4),
+			"queue":      NewStructLSTM(Structs["queue"], 6, 40, 1, 40, 4),
+			"multistack": NewStructLSTM(Structs["multistack"], 6, 40, 1, 40, 4),
+			"multiqueue": NewStructLSTM(Structs["multiqueue"], 6, 40, 1, 40, 4),
+			"irnn":       NewIRNN(6, 40, 3, 40, 4, 1),
+			"nprnn":      NewNPRNN(6, 40, 2, 40, 4),
+			"ffstruct":   NewStructFeedforward(Structs["ffstruct"], 6, 4, 40),
+			"hebbnet":    NewHebbNet(6, 20, 2, 40, 4),
+		},
+		MaxEpochs:    1000,
+		MaxScore:     1,
+		TrainingSize: 1000,
+		TestingBatch: 10,
+		TestingCount: 100,
+	},
+	{
 		Name: "Match Multi",
 		Task: &seqtasks.MatchMultiTask{
 			TypeCount: 4,
