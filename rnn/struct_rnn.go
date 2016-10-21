@@ -63,14 +63,16 @@ func NewStructLSTM(s neuralstruct.RStruct, inSize, hiddenSize, hiddenCount, outH
 		}
 	}
 	resBlock = append(resBlock, outBlock)
-	seqFunc := &neuralstruct.SeqFunc{
-		Block:  resBlock,
-		Struct: s,
+	seqFunc := &rnn.BlockSeqFunc{
+		B: &neuralstruct.Block{
+			Block:  resBlock,
+			Struct: s,
+		},
 	}
 	return &Model{
 		SeqFunc:       seqFunc,
 		Learner:       seqFunc,
-		Runner:        &neuralstruct.Runner{Block: resBlock, Struct: s},
+		Runner:        &rnn.Runner{Block: seqFunc.B},
 		Cost:          &neuralnet.SigmoidCECost{},
 		OutActivation: &neuralnet.Sigmoid{},
 	}
@@ -101,14 +103,16 @@ func NewStructFeedforward(s neuralstruct.RStruct, in, out int, hidden ...int) *M
 	})
 	network = append(network, structDataActivation(s))
 	network.Randomize()
-	seqFunc := &neuralstruct.SeqFunc{
-		Block:  rnn.NewNetworkBlock(network, 0),
-		Struct: s,
+	seqFunc := &rnn.BlockSeqFunc{
+		B: &neuralstruct.Block{
+			Block:  rnn.NewNetworkBlock(network, 0),
+			Struct: s,
+		},
 	}
 	return &Model{
 		SeqFunc:       seqFunc,
 		Learner:       seqFunc,
-		Runner:        &neuralstruct.Runner{Block: seqFunc.Block, Struct: s},
+		Runner:        &rnn.Runner{Block: seqFunc.B},
 		Cost:          &neuralnet.SigmoidCECost{},
 		OutActivation: &neuralnet.Sigmoid{},
 	}

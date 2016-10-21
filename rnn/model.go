@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/unixpickle/autofunc"
+	"github.com/unixpickle/autofunc/seqfunc"
 	"github.com/unixpickle/num-analysis/linalg"
 	"github.com/unixpickle/sgd"
 	"github.com/unixpickle/weakai/neuralnet"
@@ -22,7 +23,7 @@ type AllRunner interface {
 // A Model is a seqtasks.Model which uses an rnn.SeqFunc
 // and a cost function.
 type Model struct {
-	SeqFunc rnn.SeqFunc
+	SeqFunc seqfunc.RFunc
 	Learner sgd.Learner
 	Runner  AllRunner
 	Cost    neuralnet.CostFunc
@@ -64,7 +65,7 @@ func NewBlockModel(inSize, hiddenSize, hiddenCount, outHiddenSize, outCount int,
 	}
 	res = append(res, outBlock)
 	return &Model{
-		SeqFunc:       &rnn.BlockSeqFunc{Block: res},
+		SeqFunc:       &rnn.BlockSeqFunc{B: res},
 		Learner:       res,
 		Runner:        &rnn.Runner{Block: res},
 		Cost:          &neuralnet.SigmoidCECost{},
@@ -85,7 +86,7 @@ func (s *Model) UseSoftmax() *Model {
 func (s *Model) Train(samples sgd.SampleSet) {
 	if s.gradienter == nil {
 		s.gradienter = &sgd.Adam{
-			Gradienter: &seqtoseq.SeqFuncGradienter{
+			Gradienter: &seqtoseq.Gradienter{
 				SeqFunc:  s.SeqFunc,
 				Learner:  s.SeqFunc.(sgd.Learner),
 				CostFunc: s.Cost,
